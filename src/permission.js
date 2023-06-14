@@ -1,64 +1,39 @@
 import router from './router'
+import NProgress from 'nprogress' // 引入上方进度条组件
+import 'nprogress/nprogress.css' // 引入进度条样式
 import store from './store'
-import { Message } from 'element-ui'
-import NProgress from 'nprogress' // progress bar
-import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
-import getPageTitle from '@/utils/get-page-title'
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+// NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login'] // no redirect whitelist
+const whiteList = ['/login']
 
 router.beforeEach(async(to, from, next) => {
-  // start progress bar
+  // 进度条开启
   NProgress.start()
-
-  // set page title
-  document.title = getPageTitle(to.meta.title)
-
-  // determine whether the user has logged in
-  const hasToken = getToken()
-
-  if (hasToken) {
+  if (store.getters.token) {
     if (to.path === '/login') {
-      // if is logged in, redirect to the home page
-      next({ path: '/' })
+      next('/')
       NProgress.done()
     } else {
-      const hasGetUserInfo = store.getters.name
-      if (hasGetUserInfo) {
-        next()
-      } else {
-        try {
-          // get user info
-          await store.dispatch('user/getInfo')
-
-          next()
-        } catch (error) {
-          // remove token and go to login page to re-login
-          await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
-          next(`/login?redirect=${to.path}`)
-          NProgress.done()
-        }
+      // 在导航前置守卫中让所有页面都可以获取到个人信息
+      // 直接判断仓库中有没有userID,若没有，则发送请求
+      if (!store.getters.userId) {
+        await store.dispatch('user/getUserInfo')
       }
+      next()
     }
   } else {
-    /* has no token*/
-
-    if (whiteList.indexOf(to.path) !== -1) {
-      // in the free login whitelist, go directly
+    if (whiteList.includes(to.path)) {
       next()
     } else {
-      // other pages that do not have permission to access are redirected to the login page.
-      next(`/login?redirect=${to.path}`)
+      next('/login')
+      // 进度条关闭,在next中定义了跳转地址，就不会走路由后置守卫了
       NProgress.done()
     }
   }
 })
 
 router.afterEach(() => {
-  // finish progress bar
+  // 进度条关闭
   NProgress.done()
 })

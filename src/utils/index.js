@@ -115,3 +115,17 @@ export function param2Obj(url) {
   })
   return obj
 }
+
+// 处理树型数据，进行递归操作
+export const handleDeptList = (DeptList, id) => {
+  const list = []
+  DeptList.forEach(item => {
+    if (item.pid === id) {
+      list.push(item)
+      const children = handleDeptList(DeptList, item.id)
+      item.children = children
+    }
+  })
+  return list
+}
+
