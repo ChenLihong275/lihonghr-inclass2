@@ -51,7 +51,7 @@ export const constantRoutes = [
   }
 ]
 // 动态路由，方便设置权限
-const asyncRoutes = [
+export const asyncRoutes = [
   departmentRouter,
   roleRouter,
   employeeRouter,
@@ -63,9 +63,11 @@ const asyncRoutes = [
 ]
 
 const createRouter = () => new Router({
-  // mode: 'history', // require service support
+  mode: 'history', // require service support
   scrollBehavior: () => ({ y: 0 }),
-  routes: [...constantRoutes, ...asyncRoutes, { path: '*', redirect: '/404', hidden: true }]
+  // 动态路由根据员工权限进行动态添加，后期配置权限后只保留静态路由
+  // routes: [...constantRoutes, ...asyncRoutes, { path: '*', redirect: '/404', hidden: true }]
+  routes: constantRoutes
 })
 
 const router = createRouter()

@@ -37,7 +37,8 @@ module.exports = {
       errors: true
     },
     proxy: {
-      '/api': { target: 'https://heimahr.itheima.net/' }
+      // '/api': { target: 'https://heimahr.itheima.net/' }
+      '/api': { target: 'https://heimahr-t.itheima.net/' }
     }
     // before: require('./mock/mock-server.js')
   },
@@ -49,6 +50,11 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
+    },
+    externals: {
+      'vue': 'Vue',
+      'element-ui': 'ELEMENT',
+      'cos-js-sdk-v5': 'COS'
     }
   },
   chainWebpack(config) {

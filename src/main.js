@@ -23,10 +23,10 @@ import '@/permission' // permission control
  * Currently MockJs will be used in the production environment,
  * please remove it before going online ! ! !
  */
-if (process.env.NODE_ENV === 'production') {
-  const { mockXHR } = require('../mock')
-  mockXHR()
-}
+// if (process.env.NODE_ENV === 'production') {
+//   const { mockXHR } = require('../mock')
+//   mockXHR()
+// }
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })
@@ -40,4 +40,16 @@ new Vue({
   router,
   store,
   render: h => h(App)
+})
+
+Vue.directive('special', {
+  inserted(el, binding) {
+    console.log(store.getters.userForm?.roles?.points)
+    const points = store.getters.userForm?.roles?.points || []
+    // 如果用户信息中不包含该按钮的自定义指令值，则禁用或者移除此按钮
+    if (!points.includes(binding.value)) {
+      // el.remove()
+      el.disabled = true
+    }
+  }
 })
